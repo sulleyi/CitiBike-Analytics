@@ -8,16 +8,32 @@ output: html_document
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
+<<<<<<< HEAD
 library(devtools)
 
+=======
+library(caret)
+>>>>>>> 97c0a9563f1790a2f09d609373aa8126ee06b4ec
 bike = read.csv('JC-201706-citibike-tripdata.csv')
 bike=filter(bike, tripduration<mean(tripduration)+(3*sd(tripduration)))
 bike$hour = hour(bike$starttime)
 ```
 
+### Data Pedigree
+The data are publicly available on CitiBike's website on a monthly basis. The variables in the dataset have information on start and end times, start and end stations, trip duration, the bike ID numbers, user types, birth years, and genders of users in the bike sharing program. The list below shows the complete set of variables in the dataset.
+```{r}
+str(bike)
+```
+
 ```{r}
 ggplot(bike, aes(x=usertype, y=tripduration)) + geom_boxplot() +ylim(0,3000)
 ggplot(bike, aes(x=hour, color=usertype)) + geom_density()
+```
+
+```{r}
+stations = bike %>% 
+  group_by(start.station.name) %>%
+  summarise(long=mean(start.station.longitude), lat=mean(start.station.latitude))
 ```
 
 
@@ -43,4 +59,20 @@ bikeclusters$centers
 ```
 
 
+
+```{r}
+set.seed(364)
+oursample <- sample(nrow(bike),floor(nrow(bike)*0.8))
+
+train <- bike[oursample,] 
+test <- bike[-oursample,]
+```
+
+```{r}
+logit1 = glm(usertype ~ tripduration + hour + start.station.name, data = train, family = "binomial")
+#round(exp(coef(logit1)), 3)
+test$pred_logit <- predict(logit1, test, type="response")
+test$userpred <- as.factor(ifelse(test$pred_logit > 0.9, "Subscriber", "Customer"))
+confusionMatrix(test$userpred, test$usertype)
+```
 
