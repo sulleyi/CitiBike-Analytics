@@ -8,6 +8,8 @@ output: html_document
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
+library(devtools)
+
 bike = read.csv('JC-201706-citibike-tripdata.csv')
 bike=filter(bike, tripduration<mean(tripduration)+(3*sd(tripduration)))
 bike$hour = hour(bike$starttime)
@@ -18,6 +20,17 @@ ggplot(bike, aes(x=usertype, y=tripduration)) + geom_boxplot() +ylim(0,3000)
 ggplot(bike, aes(x=hour, color=usertype)) + geom_density()
 ```
 
+
+```{r}
+devtools::install_github("hrbrmstr/nominatim")
+library(nominatim)
+
+mapQuestKey <- "RJuKNmNOgJgR0SXx4pUHJGGS8SNuNx5Z";
+
+emb_coded_coords <- reverse_geocode_coords(bike$start.station.latitude, bike$start.station.longitude, key = mapQuestKey)
+head(emb_coded_coords)
+
+```
 
 ```{r}
 normalize = function(x) {(x - min(x)) / (max(x) - min(x))}
