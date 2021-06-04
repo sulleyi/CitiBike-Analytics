@@ -8,7 +8,16 @@ output: html_document
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
-bike = read.csv('JC-201706-citibike-tripdata.csv')
+library(zip)
+library(curl)
+```
+
+```{r}
+zippedcsv <- curl("https://s3.amazonaws.com/tripdata/201701-citibike-tripdata.csv.zip", "r")
+csv = unzip(zippedcsv)
+bike = read.csv(csv)
+
+
 bike=filter(bike, tripduration<mean(tripduration)+(3*sd(tripduration)))
 bike$hour = hour(bike$starttime)
 ```
