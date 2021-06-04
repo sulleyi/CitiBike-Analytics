@@ -1,0 +1,33 @@
+---
+title: "FInal Project 364"
+author: "Steven Crouch"
+date: "6/3/2021"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+bike = read.csv('JC-201706-citibike-tripdata.csv')
+bike=filter(bike, tripduration<mean(tripduration)+(3*sd(tripduration)))
+bike$hour = hour(bike$starttime)
+```
+
+```{r}
+ggplot(bike, aes(x=usertype, y=tripduration)) + geom_boxplot() +ylim(0,3000)
+ggplot(bike, aes(x=hour, color=usertype)) + geom_density()
+```
+
+
+```{r}
+normalize = function(x) {(x - min(x)) / (max(x) - min(x))}
+dummyBike = as.data.frame(model.matrix(~ start.station.name+tripduration+hour+usertype+gender, data = bike))
+dummyBike_n = as.data.frame(lapply(dummyBike, FUN=normalize))
+dummyBike_n = dummyBike_n[,2:55]
+set.seed(364, sample.kind="Rounding") 
+bikeclusters=kmeans(dummyBike_n, 4)
+bikeclusters$centers
+```
+
+
+
