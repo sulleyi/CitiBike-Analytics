@@ -8,12 +8,9 @@ output: html_document
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
-<<<<<<< HEAD
 library(devtools)
-
-=======
 library(caret)
->>>>>>> 97c0a9563f1790a2f09d609373aa8126ee06b4ec
+
 bike = read.csv('JC-201706-citibike-tripdata.csv')
 bike=filter(bike, tripduration<mean(tripduration)+(3*sd(tripduration)))
 bike$hour = hour(bike$starttime)
@@ -35,44 +32,4 @@ stations = bike %>%
   group_by(start.station.name) %>%
   summarise(long=mean(start.station.longitude), lat=mean(start.station.latitude))
 ```
-
-
-```{r}
-devtools::install_github("hrbrmstr/nominatim")
-library(nominatim)
-
-mapQuestKey <- "RJuKNmNOgJgR0SXx4pUHJGGS8SNuNx5Z";
-
-emb_coded_coords <- reverse_geocode_coords(bike$start.station.latitude, bike$start.station.longitude, key = mapQuestKey)
-head(emb_coded_coords)
-
-```
-
-```{r}
-normalize = function(x) {(x - min(x)) / (max(x) - min(x))}
-dummyBike = as.data.frame(model.matrix(~ start.station.name+tripduration+hour+usertype+gender, data = bike))
-dummyBike_n = as.data.frame(lapply(dummyBike, FUN=normalize))
-dummyBike_n = dummyBike_n[,2:55]
-set.seed(364, sample.kind="Rounding") 
-bikeclusters=kmeans(dummyBike_n, 4)
-bikeclusters$centers
-```
-
-
-
-```{r}
-set.seed(364)
-oursample <- sample(nrow(bike),floor(nrow(bike)*0.8))
-
-train <- bike[oursample,] 
-test <- bike[-oursample,]
-```
-
-```{r}
-logit1 = glm(usertype ~ tripduration + hour + start.station.name, data = train, family = "binomial")
-#round(exp(coef(logit1)), 3)
-test$pred_logit <- predict(logit1, test, type="response")
-test$userpred <- as.factor(ifelse(test$pred_logit > 0.9, "Subscriber", "Customer"))
-confusionMatrix(test$userpred, test$usertype)
-```
-
+nfor
